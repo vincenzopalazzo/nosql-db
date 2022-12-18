@@ -7,5 +7,6 @@ description = "The NoSQL DB provide a simple and portable interface for a Key-Va
 readme = "../README.md"
 homepage = "https://github.com/vincenzopalazzo/nosql-db"
 repository = "https://github.com/vincenzopalazzo/nosql-db.git"
+license = "GPL-2.0"
 
 [dependencies]

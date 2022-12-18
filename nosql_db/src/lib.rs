@@ -16,14 +16,14 @@ pub mod err;
 /// Simple No SQL interface that expose simple
 /// sync and async API to interact with the
 /// database.
-pub trait NoSQL: Sized {
+pub trait NoSQL {
     type Err = err::Error;
 
     /// create a new instance of the database with the
     /// URI provided.
     ///
     /// The URI can be a http link or a simple disk path.
-    fn new(uri: &str) -> Result<Self, Self::Err>;
+    fn new(uri: &str) -> Result<Self, Self::Err> where Self: Sized;
 
     /// get the value with the key inside the database
     /// panic if the value if the look up fails.
