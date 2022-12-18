@@ -1,0 +1,6 @@
+[workspace]
+members = [
+        "nosql_db",
+        "nosql_rocksdb",
+]
+resolver = "2"
