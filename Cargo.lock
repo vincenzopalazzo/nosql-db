@@ -166,19 +166,19 @@ dependencies = [
 
 [[package]]
 name = "nosql_db"
-version = "0.0.1"
+version = "0.0.2"
 
 [[package]]
 name = "nosql_db"
-version = "0.0.1"
+version = "0.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fff1310a73fb8ae38bb52d1131228863843ae3b8350801d5f550f13effa5e680"
+checksum = "07ca1499fa141b3d427ecac7e2da752cae1cfb24c09aa274539ac4652b65399c"
 
 [[package]]
 name = "nosql_rocksdb"
 version = "0.0.1"
 dependencies = [
- "nosql_db 0.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nosql_db 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "rocksdb",
 ]
 

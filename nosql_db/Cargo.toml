@@ -1,6 +1,6 @@
 [package]
 name = "nosql_db"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 authors = ["Vincenzo Palazzo <vincenzopalazzodev@gmail.com>"]
 description = "The NoSQL DB provide a simple and portable interface for a Key-Value database for rust"
