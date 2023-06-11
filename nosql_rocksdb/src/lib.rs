@@ -21,7 +21,7 @@ impl NoSQL for RocksDB {
         Ok(RocksDB { db })
     }
 
-    fn opt_get(&self, key: &str) -> Result<String, Self::Err> {
+    fn get(&self, key: &str) -> Result<String, Self::Err> {
         let value = match self.db.get(key.as_bytes()) {
             Ok(value) => value,
             Err(err) => return Err(Error::from(err)),
@@ -37,26 +37,26 @@ impl NoSQL for RocksDB {
         }
     }
 
-    fn opt_put(&self, key: &str, value: &str) -> Result<(), Self::Err> {
+    fn put(&self, key: &str, value: &str) -> Result<(), Self::Err> {
         match self.db.put(key, value) {
             Ok(_) => Ok(()),
             Err(err) => Err(Error::from(err)),
         }
     }
 
-    fn get(&self, key: &str) -> String {
-        self.opt_get(key).unwrap()
+    fn get_unchecked(&self, key: &str) -> String {
+        self.get(key).unwrap()
     }
 
-    fn put(&self, key: &str, value: &str) {
-        self.opt_put(key, value).unwrap()
+    fn put_unchecked(&self, key: &str, value: &str) {
+        self.put(key, value).unwrap()
     }
 
     fn contains(&self, key: &str) -> bool {
-        self.opt_get(key).is_ok()
+        self.get(key).is_ok()
     }
 
-    fn keys(&self) -> Vec<&'static str> {
-        vec![]
+    fn keys(&self) -> Vec<String> {
+        unimplemented!()
     }
 }
