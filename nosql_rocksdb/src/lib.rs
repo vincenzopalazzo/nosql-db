@@ -1,6 +1,33 @@
 //! No SQL interface for rocksdb database.
 use nosql_db::NoSQL;
-use rocksdb::{ColumnFamilyDescriptor, Error, Options, DB};
+use rocksdb::{ColumnFamilyDescriptor, Options, DB};
+
+#[derive(Clone, Debug)]
+pub struct Error {
+    message: String,
+}
+
+impl Error {
+    pub fn new(err: &str) -> Self {
+        Self {
+            message: err.to_owned(),
+        }
+    }
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+impl From<rocksdb::Error> for Error {
+    fn from(value: rocksdb::Error) -> Self {
+        Self {
+            message: value.to_string(),
+        }
+    }
+}
 
 pub struct RocksDB {
     db: DB,
@@ -24,13 +51,12 @@ impl NoSQL for RocksDB {
         let value = self.db.get(key.as_bytes())?;
         match value {
             Some(value) => {
-                let value = String::from_utf8(value)?;
+                let value =
+                    String::from_utf8(value).map_err(|err| Error::new(&format!("{err}")))?;
                 Ok(value)
             }
             // FIXME: the API should return an Option<String>
-            None => Err(Error {
-                message: format!("value with key {key} not found"),
-            }),
+            None => Err(Error::new(&format!("value with key {key} not found"))),
         }
     }
 
