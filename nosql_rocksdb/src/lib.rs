@@ -1,12 +1,14 @@
 //! No SQL interface for rocksdb database.
-use nosql_db::{err::Error, NoSQL};
-use rocksdb::{ColumnFamilyDescriptor, Options, DB};
+use nosql_db::NoSQL;
+use rocksdb::{ColumnFamilyDescriptor, Error, Options, DB};
 
 pub struct RocksDB {
     db: DB,
 }
 
 impl NoSQL for RocksDB {
+    type Err = Error;
+
     fn new(uri: &str) -> Result<Self, Self::Err> {
         let mut opts = Options::default();
         opts.create_if_missing(true);
@@ -14,26 +16,21 @@ impl NoSQL for RocksDB {
         let cf_opts = Options::default();
         let cf = ColumnFamilyDescriptor::new("nosql", cf_opts);
 
-        let db = match DB::open_cf_descriptors(&opts, uri, vec![cf]) {
-            Ok(value) => value,
-            Err(err) => return Err(Error::from(err)),
-        };
+        let db = DB::open_cf_descriptors(&opts, uri, vec![cf])?;
         Ok(RocksDB { db })
     }
 
     fn get(&self, key: &str) -> Result<String, Self::Err> {
-        let value = match self.db.get(key.as_bytes()) {
-            Ok(value) => value,
-            Err(err) => return Err(Error::from(err)),
-        };
+        let value = self.db.get(key.as_bytes())?;
         match value {
             Some(value) => {
                 let value = String::from_utf8(value)?;
                 Ok(value)
             }
-            None => Err(Error::new(
-                format!("value with key {key} not found").as_str(),
-            )),
+            // FIXME: the API should return an Option<String>
+            None => Err(Error {
+                message: format!("value with key {key} not found"),
+            }),
         }
     }
 
