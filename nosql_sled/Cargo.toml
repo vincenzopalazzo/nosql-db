@@ -1,14 +1,14 @@
 [package]
-name = "nosql_rocksdb"
-version = "0.0.1"
+name = "nosql_sled"
+version = "0.1.0"
 edition = "2021"
 authors = ["Vincenzo Palazzo <vincenzopalazzodev@gmail.com>"]
-description = "The NoSQL DB API for ReocksDB"
+description = "The NoSQL DB provide a simple and portable interface for a Key-Value database for rust for sled"
 readme = "../README.md"
 homepage = "https://github.com/vincenzopalazzo/nosql-db"
 repository = "https://github.com/vincenzopalazzo/nosql-db.git"
 license = "GPL-2.0"
 
 [dependencies]
-rocksdb = { version = "0.19.0", features = ["lz4"] }
 nosql_db = { path = "../nosql_db" }
+sled = "0.34.7"

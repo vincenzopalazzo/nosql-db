@@ -1,12 +1,41 @@
 //! No SQL interface for rocksdb database.
-use nosql_db::{err::Error, NoSQL};
+use nosql_db::NoSQL;
 use rocksdb::{ColumnFamilyDescriptor, Options, DB};
+
+#[derive(Clone, Debug)]
+pub struct Error {
+    message: String,
+}
+
+impl Error {
+    pub fn new(err: &str) -> Self {
+        Self {
+            message: err.to_owned(),
+        }
+    }
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+impl From<rocksdb::Error> for Error {
+    fn from(value: rocksdb::Error) -> Self {
+        Self {
+            message: value.to_string(),
+        }
+    }
+}
 
 pub struct RocksDB {
     db: DB,
 }
 
 impl NoSQL for RocksDB {
+    type Err = Error;
+
     fn new(uri: &str) -> Result<Self, Self::Err> {
         let mut opts = Options::default();
         opts.create_if_missing(true);
@@ -14,49 +43,43 @@ impl NoSQL for RocksDB {
         let cf_opts = Options::default();
         let cf = ColumnFamilyDescriptor::new("nosql", cf_opts);
 
-        let db = match DB::open_cf_descriptors(&opts, uri, vec![cf]) {
-            Ok(value) => value,
-            Err(err) => return Err(Error::from(err)),
-        };
+        let db = DB::open_cf_descriptors(&opts, uri, vec![cf])?;
         Ok(RocksDB { db })
     }
 
-    fn opt_get(&self, key: &str) -> Result<String, Self::Err> {
-        let value = match self.db.get(key.as_bytes()) {
-            Ok(value) => value,
-            Err(err) => return Err(Error::from(err)),
-        };
+    fn get(&self, key: &str) -> Result<String, Self::Err> {
+        let value = self.db.get(key.as_bytes())?;
         match value {
             Some(value) => {
-                let value = String::from_utf8(value)?;
+                let value =
+                    String::from_utf8(value).map_err(|err| Error::new(&format!("{err}")))?;
                 Ok(value)
             }
-            None => Err(Error::new(
-                format!("value with key {key} not found").as_str(),
-            )),
+            // FIXME: the API should return an Option<String>
+            None => Err(Error::new(&format!("value with key {key} not found"))),
         }
     }
 
-    fn opt_put(&self, key: &str, value: &str) -> Result<(), Self::Err> {
+    fn put(&self, key: &str, value: &str) -> Result<(), Self::Err> {
         match self.db.put(key, value) {
             Ok(_) => Ok(()),
             Err(err) => Err(Error::from(err)),
         }
     }
 
-    fn get(&self, key: &str) -> String {
-        self.opt_get(key).unwrap()
+    fn get_unchecked(&self, key: &str) -> String {
+        self.get(key).unwrap()
     }
 
-    fn put(&self, key: &str, value: &str) {
-        self.opt_put(key, value).unwrap()
+    fn put_unchecked(&self, key: &str, value: &str) {
+        self.put(key, value).unwrap()
     }
 
     fn contains(&self, key: &str) -> bool {
-        self.opt_get(key).is_ok()
+        self.get(key).is_ok()
     }
 
-    fn keys(&self) -> Vec<&'static str> {
-        vec![]
+    fn keys(&self) -> Vec<String> {
+        unimplemented!()
     }
 }
