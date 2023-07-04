@@ -1,5 +1,7 @@
 use std::sync::Mutex;
 
+pub use sled::Error;
+
 use nosql_db::NoSQL;
 
 pub struct SledDB {
@@ -34,6 +36,7 @@ impl NoSQL for SledDB {
         unimplemented!()
     }
 
+    // FIXME: this should return the Result<Option<Strong>, Err>
     fn get(&self, key: &str) -> Result<String, Self::Err> {
         let value = self.inner.lock().unwrap().get(key)?.unwrap();
         let value = String::from_utf8(value.to_vec()).unwrap();
