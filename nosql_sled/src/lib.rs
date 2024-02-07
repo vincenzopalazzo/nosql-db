@@ -1,5 +1,8 @@
 use std::sync::Mutex;
 
+// export the sled package to use a low lever API
+// e.g: config
+pub use sled;
 pub use sled::Error;
 
 use nosql_db::NoSQL;
@@ -11,6 +14,17 @@ pub struct SledDB {
 unsafe impl Send for SledDB {}
 unsafe impl Sync for SledDB {}
 
+// low lever Api is the application need a custom nosql database
+impl TryFrom<sled::Config> for SledDB {
+    type Error = sled::Error;
+
+    fn try_from(value: sled::Config) -> Result<Self, Self::Error> {
+        Ok(SledDB {
+            inner: Mutex::new(value.open()?),
+        })
+    }
+}
+
 impl NoSQL for SledDB {
     type Err = sled::Error;
 
@@ -18,7 +32,7 @@ impl NoSQL for SledDB {
     where
         Self: Sized,
     {
-        let tree = sled::open(uri).expect("open");
+        let tree = sled::open(uri)?;
         Ok(Self {
             inner: Mutex::new(tree),
         })
