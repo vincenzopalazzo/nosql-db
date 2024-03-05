@@ -68,9 +68,9 @@ impl NoSQL for SledDB {
         self.put(key, value).unwrap();
     }
 
-    fn over_prefix<F>(&self, prefix: &str, callback: F) -> Result<(), Self::Err>
+    fn over_prefix<F>(&self, prefix: &str, mut callback: F) -> Result<(), Self::Err>
     where
-        F: Fn(&Self, String, String) -> Result<(), Self::Err>,
+        F: FnMut(&Self, String, String) -> Result<(), Self::Err>,
     {
         let mut iter = self.inner.lock().unwrap().scan_prefix(prefix);
         while let Some(Ok((key, value))) = iter.next() {
