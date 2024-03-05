@@ -1,7 +1,6 @@
 [workspace]
 members = [
         "nosql_db",
-        "nosql_rocksdb",
         "nosql_sled",
 ]
 resolver = "2"

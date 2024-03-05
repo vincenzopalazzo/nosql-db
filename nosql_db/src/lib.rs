@@ -48,6 +48,9 @@ pub trait NoSQL {
     /// database.
     fn keys(&self) -> Vec<String>;
 
-    // FIXME: add method to iterate over a range
-    // of keys.
+    /// Iterate starting from a prefix and call a callback
+    /// for each item of the iterator
+    fn over_prefix<F>(&self, prefix: &str, callback: F) -> Result<(), Self::Err>
+    where
+        F: Fn(&Self, String, String) -> Result<(), Self::Err>;
 }
