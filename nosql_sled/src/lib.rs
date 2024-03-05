@@ -67,4 +67,18 @@ impl NoSQL for SledDB {
     fn put_unchecked(&self, key: &str, value: &str) {
         self.put(key, value).unwrap();
     }
+
+    fn over_prefix<F>(&self, prefix: &str, callback: F) -> Result<(), Self::Err>
+    where
+        F: Fn(&Self, String, String) -> Result<(), Self::Err>,
+    {
+        let mut iter = self.inner.lock().unwrap().scan_prefix(prefix);
+        while let Some(Ok((key, value))) = iter.next() {
+            // Convert key and value to strings
+            let key_str = String::from_utf8_lossy(&key).to_string();
+            let value_str = String::from_utf8_lossy(&value).to_string();
+            callback(self, key_str, value_str)?;
+        }
+        Ok(())
+    }
 }
