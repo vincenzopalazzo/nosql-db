@@ -52,5 +52,5 @@ pub trait NoSQL {
     /// for each item of the iterator
     fn over_prefix<F>(&self, prefix: &str, callback: F) -> Result<(), Self::Err>
     where
-        F: Fn(&Self, String, String) -> Result<(), Self::Err>;
+        F: FnMut(&Self, String, String) -> Result<(), Self::Err>;
 }
