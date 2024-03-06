@@ -68,6 +68,12 @@ impl NoSQL for SledDB {
         self.put(key, value).unwrap();
     }
 
+    fn drop(&self, key: &str) -> Result<Option<String>, Self::Err> {
+        let value = self.inner.lock().unwrap().remove(key)?;
+        let value = value.and_then(|val| Some(String::from_utf8_lossy(&val).to_string()));
+        Ok(value)
+    }
+
     fn over_prefix<F>(&self, prefix: &str, mut callback: F) -> Result<(), Self::Err>
     where
         F: FnMut(&Self, String, String) -> Result<(), Self::Err>,

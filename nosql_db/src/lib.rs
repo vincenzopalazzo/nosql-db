@@ -41,6 +41,9 @@ pub trait NoSQL {
     /// this occurs.
     fn put(&self, key: &str, value: &str) -> Result<(), Self::Err>;
 
+    /// remove the value with the specified key
+    fn drop(&self, key: &str) -> Result<Option<String>, Self::Err>;
+
     /// check if the key is present inside the database
     fn contains(&self, key: &str) -> bool;
 
